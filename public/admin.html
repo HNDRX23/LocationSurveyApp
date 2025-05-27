@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Location Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    #map {
+      height: 400px;
+      width: 100%;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>📍 Location Tracker Admin Panel</h2>
+  <p>Below is a table of logged locations and a map with pins:</p>
+
+  <table id="locationTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="map"></div>
+
+  <script>
+    const sheetId = '18---D9ESxMjhq5lO37MXHWo7LpudCOKlNR6FR1qOPBw';
+    const sheetName = 'Sheet1';
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(raw => {
+        const json = JSON.parse(raw.substring(47).slice(0, -2));
+        const rows = json.table.rows;
+        const table = document.querySelector('#locationTable tbody');
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 2,
+          center: { lat: 0, lng: 0 }
+        });
+
+        rows.forEach((row, index) => {
+          const lat = parseFloat(row.c[0].v);
+          const lon = parseFloat(row.c[1].v);
+          const timestamp = row.c[2].v;
+
+          // Add row to table
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${lat}</td>
+            <td>${lon}</td>
+            <td>${timestamp}</td>
+          `;
+          table.appendChild(tr);
+
+          // Add marker to map
+          new google.maps.Marker({
+            position: { lat, lng: lon },
+            map,
+            title: `#${index + 1} @ ${timestamp}`
+          });
+        });
+      });
+  </script>
+
+  <!-- Replace with your actual Google Maps API Key -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-F9zOla5E_zUieay9GYDYcPHcNsCUj0" async defer></script>
+</body>
+</html>

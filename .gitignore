@@ -1,0 +1,12 @@
+# Node
+node_modules/
+.env
+
+# Logs
+*.log
+
+# System
+.DS_Store
+
+# Secrets (only if used)
+firebaseKey.json

